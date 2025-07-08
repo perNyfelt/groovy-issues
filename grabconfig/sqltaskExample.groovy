@@ -1,6 +1,8 @@
 @GrabConfig(systemClassLoader=true)
 @Grab('com.h2database:h2:2.3.232')
 import groovy.ant.AntBuilder
+
+println "Groovy ClassLoader: ${this.class.classLoader}"
 def project = new AntBuilder()
 project.with {
   sql(
