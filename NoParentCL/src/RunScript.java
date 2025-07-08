@@ -37,8 +37,8 @@ class RunScript {
     checkThatClassloaderHasNoGroovy(getBootStrapClassloader());
     runScriptJsr223(new GroovyClassLoader(bootstrapLoader), script);
     
-    System.out.println("Running script in jsr223 using classloader without parent");
-    runScriptJsr223(new GroovyClassLoader((ClassLoader) null), script);
+    //System.out.println("Running script in jsr223 using classloader without parent");
+    //runScriptJsr223(new GroovyClassLoader((ClassLoader) null), script);
   }
 
   static ClassLoader getBootStrapClassloader() {
@@ -51,7 +51,7 @@ class RunScript {
 
   private static void checkThatClassloaderHasNoGroovy(ClassLoader cl) {
     try {
-      var c = cl.loadClass("groovy.lang.GroovyShell");
+      cl.loadClass("groovy.lang.GroovyShell");
       throw new RuntimeException("Classloader has groovy, NOT what we expected");
     } catch (ClassNotFoundException e) {
       System.out.println("Classloader has no groovy");
@@ -83,8 +83,9 @@ class RunScript {
       // This is the problem, we cannot instantiate the GroovyShell in the parent classloader unless
       // the classloader includes the parent classloader.
       //GroovyShell shell = new GroovyShell(cl);
-      evalInGroovyShell(cl, script);
       //shell.evaluate(script);
+      // instead we use reflection
+      evalInGroovyShell(cl, script);
       System.out.println("Script ran successfully");
     } catch (Exception e) {
       System.err.println("Failed to run script: " + e);
@@ -101,7 +102,7 @@ class RunScript {
 
   static void evalInScriptEngine(GroovyClassLoader cl, String script)
       throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
-      IllegalAccessException, InstantiationException {
+      IllegalAccessException, InstantiationException, ScriptException {
     var c = cl.loadClass("org.codehaus.groovy.jsr223.GroovyScriptEngineImpl");
     var engine = c.getDeclaredConstructor().newInstance();
     c.getMethod("eval", String.class).invoke(engine, script);
