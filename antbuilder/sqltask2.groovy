@@ -1,14 +1,14 @@
+/* Alternative version using @Grab */
+@Grab('com.h2database:h2:2.3.232')
 import groovy.ant.AntBuilder
-import groovy.grape.Grape
-
 
 def project = new AntBuilder()
 
 project.with {
 
-  def h2 = Grape.instance.resolve(classLoader: this.class.classLoader, [[group:'com.h2database', module:'h2', version:'2.3.232']] as Map[])[0]
+  URL h2 = this.class.classLoader.URLs.find { it.toString().contains('h2') } as URL
   path(id: 'driverPath') {
-    pathelement(location: new File(h2))
+    pathelement(location: h2.file)
   }
   sql(
     driver:     "org.h2.Driver",
